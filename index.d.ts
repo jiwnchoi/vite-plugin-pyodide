@@ -3,14 +3,14 @@
 import type { PyodideInterface } from "pyodide";
 import type { Plugin } from "vite";
 
-declare module "virtual:pyodide-files" {
-  export function setupPyodideFiles(pyodide: PyodideInterface): Promise<void>;
+declare module "vite-plugin-pyodide/pyodide" {
+	export function setupPyodideFiles(pyodide: PyodideInterface): Promise<void>;
 }
 
 declare module "vite-plugin-pyodide" {
-  export interface PyodidePluginOptions {
-    // Add any plugin-specific options here
-  }
+	export interface PyodidePluginOptions {
+		pythonFilesPath: string;
+	}
 
-  export default function pyodidePlugin(options?: PyodidePluginOptions): Plugin;
+	export default function pyodidePlugin(options?: PyodidePluginOptions): Plugin;
 }

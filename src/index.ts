@@ -27,9 +27,16 @@ function pyodidePlugin(options: PyodidePluginOptions): Plugin {
 					const mod = server.moduleGraph.getModuleById(resolvedVirtualModuleId);
 					if (mod) {
 						server.moduleGraph.invalidateModule(mod);
+						server.ws.send({
+							type: "full-reload",
+							path: "*",
+						});
 					}
 				}
 			});
+
+			// Initial load of Python files
+			loadPythonFiles(basePath, basePath);
 
 			// Add MIME type for .wasm files
 			server.middlewares.use((req, res, next) => {
@@ -53,6 +60,18 @@ function pyodidePlugin(options: PyodidePluginOptions): Plugin {
 			}
 			return null;
 		},
+
+		handleHotUpdate({ file, server }) {
+			if (file.endsWith(".py")) {
+				const basePath = path.resolve(options.base);
+				updatePythonFile(file, basePath);
+				const mod = server.moduleGraph.getModuleById(resolvedVirtualModuleId);
+				if (mod) {
+					server.moduleGraph.invalidateModule(mod);
+					return [mod];
+				}
+			}
+		},
 	};
 
 	function updatePythonFile(filePath: string, basePath: string) {
@@ -73,10 +92,8 @@ function pyodidePlugin(options: PyodidePluginOptions): Plugin {
 			}
 		}
 	}
-	function generateVirtualModule() {
-		const basePath = path.resolve(options.base);
-		loadPythonFiles(basePath, basePath);
 
+	function generateVirtualModule() {
 		const filesCode = Object.entries(pythonFiles)
 			.map(([path, content]) => `  '${path}': ${JSON.stringify(content)}`)
 			.join(",\n");

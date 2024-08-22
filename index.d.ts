@@ -3,7 +3,7 @@
 import type { PyodideInterface } from "pyodide";
 import type { Plugin } from "vite";
 
-declare module "vite-plugin-pyodide/pyodide" {
+declare module "virtual:pyodide-files" {
 	export function setupPyodideFiles(pyodide: PyodideInterface): Promise<void>;
 }
 

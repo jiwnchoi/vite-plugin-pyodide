@@ -1,17 +1,6 @@
 /// <reference types="vite/client" />
 
-import type { PyodideInterface } from "pyodide";
 import type { Plugin } from "vite";
-declare module "virtual:*" {
-	const component: any;
-	export default component;
-}
-
-declare module "virtual:pyodide-files" {
-	export function setupPyodideFiles(pyodide: PyodideInterface): Promise<void>;
-	export function runEntryPoint(pyodide: PyodideInterface): any;
-	export function runEntryPointAsync(pyodide: PyodideInterface): Promise<any>;
-}
 
 declare module "vite-plugin-pyodide" {
 	export interface PyodidePluginOptions {

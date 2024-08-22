@@ -71,6 +71,7 @@ function pyodidePlugin(options: PyodidePluginOptions): Plugin {
 					return [mod];
 				}
 			}
+			return [];
 		},
 	};
 

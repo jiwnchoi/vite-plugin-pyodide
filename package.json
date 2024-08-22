@@ -1,7 +1,7 @@
 {
   "name": "vite-plugin-pyodide",
   "type": "module",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "description": "Vite plugin that copy Python scripts into Pyodide virtual FS.",
   "main": "dist/index.js",
   "types": "index.d.ts",
@@ -9,6 +9,15 @@
     "dist",
     "index.d.ts"
   ],
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": "./dist/index.js"
+    }
+  },
   "scripts": {
     "build": "tsc -p .",
     "prepublishOnly": "npm run build"

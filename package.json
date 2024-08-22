@@ -23,6 +23,7 @@
   },
   "devDependencies": {
     "@types/node": "^22.5.0",
+    "pyodide": "^0.26.2",
     "typescript": "^5.5.4",
     "vite": "^5.4.2"
   },

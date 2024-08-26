@@ -7,69 +7,29 @@ interface PyodidePluginOptions {
 	entryPoint?: string;
 }
 
-function pyodidePlugin(options: PyodidePluginOptions): Plugin {
-	const pythonFiles: { [key: string]: string } = {};
+function pyodideFilesPlugin(options: PyodidePluginOptions): Plugin {
+	const pythonFiles: Record<string, string> = {};
 	const virtualModuleId = "virtual:pyodide-files";
 	const resolvedVirtualModuleId = `\0${virtualModuleId}`;
 
 	return {
-		name: "vite-plugin-pyodide",
-
-		configureServer(server) {
-			const basePath = path.resolve(options.base);
-
-			// Watch for changes in Python files
-			server.watcher.add(basePath);
-			server.watcher.on("change", (changedPath) => {
-				if (changedPath.endsWith(".py")) {
-					updatePythonFile(changedPath, basePath);
-					// Invalidate the module to trigger a reload
-					const mod = server.moduleGraph.getModuleById(resolvedVirtualModuleId);
-					if (mod) {
-						server.moduleGraph.invalidateModule(mod);
-						server.ws.send({
-							type: "full-reload",
-							path: "*",
-						});
-					}
-				}
-			});
-
-			// Initial load of Python files
-			loadPythonFiles(basePath, basePath);
-
-			// Add MIME type for .wasm files
-			server.middlewares.use((req, res, next) => {
-				if (req.url?.endsWith(".wasm")) {
-					res.setHeader("Content-Type", "application/wasm");
-				}
-				next();
-			});
-		},
+		name: "vite-plugin-pyodide-files",
 
 		resolveId(id) {
-			if (id === virtualModuleId) {
-				return resolvedVirtualModuleId;
-			}
-			return null;
+			return id === virtualModuleId ? resolvedVirtualModuleId : null;
 		},
 
 		load(id) {
-			if (id === resolvedVirtualModuleId) {
-				return generateVirtualModule();
-			}
-			return null;
+			return id === resolvedVirtualModuleId ? generateVirtualModule() : null;
 		},
 
 		handleHotUpdate({ file, server }) {
 			if (file.endsWith(".py")) {
-				const basePath = path.resolve(options.base);
-				updatePythonFile(file, basePath);
-				const mod = server.moduleGraph.getModuleById(resolvedVirtualModuleId);
-				if (mod) {
-					server.moduleGraph.invalidateModule(mod);
-					return [mod];
-				}
+				updatePythonFile(file, options.base);
+				server.ws.send({
+					type: "full-reload",
+					path: "*",
+				});
 			}
 			return [];
 		},
@@ -95,11 +55,12 @@ function pyodidePlugin(options: PyodidePluginOptions): Plugin {
 	}
 
 	function generateVirtualModule() {
+		loadPythonFiles(options.base, options.base);
 		const filesCode = Object.entries(pythonFiles)
 			.map(([path, content]) => `  '${path}': ${JSON.stringify(content)}`)
 			.join(",\n");
 
-		return /* JavaScript */ `
+		return `
 const pythonFiles = {
 ${filesCode}
 };
@@ -154,4 +115,4 @@ export async function runEntryPointAsync(pyodide) {
 	}
 }
 
-export default pyodidePlugin;
+export default pyodideFilesPlugin;

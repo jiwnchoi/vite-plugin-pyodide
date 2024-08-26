@@ -14,6 +14,6 @@ declare module "vite-plugin-pyodide" {
 
 declare module "virtual:pyodide-files" {
 	export function setupPyodideFiles(pyodide: PyodideInterface): Promise<void>;
-	export function runEntryPoint(pyodide: PyodideInterface): any;
-	export function runEntryPointAsync(pyodide: PyodideInterface): Promise<any>;
+	export function runEntryPoint(pyodide: PyodideInterface): void;
+	export function runEntryPointAsync(pyodide: PyodideInterface): Promise<void>;
 }

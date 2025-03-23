@@ -7,10 +7,12 @@ Install with npm install `vite-plugin-pyodide`
 
 ```typescript
 // vite.config.ts
+import { defineConfig } from "vite";
+import pyodidePlugin from "vite-plugin-pyodide";
 
 export default defineConfig({
   plugins: [
-    pyodidePlugin({ pythonFilesPath: "./python" }),
+    pyodidePlugin({ base: "./python" }),
     ...
 ```
 
